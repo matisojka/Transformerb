@@ -50,8 +50,37 @@ describe Transformerb::Etl do
         @etl = Transformerb::Etl.new(@data, setup)
       end
 
-      it 'uses the source correctly' do
-        @etl.extractor.should be_a(Transformerb::Adapters::Csv)
+      it 'uses the source (extract) correctly' do
+        @etl.extractor.should be_a(Transformerb::Adapters::Csv::Extractor)
+      end
+
+    end
+
+    describe '#load' do
+      before do
+        setup =<<-EOF
+          source CSV do
+            file 'spec/lib/transformerb/adapters/spec.csv'
+            parser_config do |config|
+              config.headers = :first_row
+            end
+          end
+
+          fields do
+            take 'name'
+            take 'Last name'
+          end
+
+          load CSV do
+            file 'spec/lib/transformerb/adapters/output_spec.csv'
+          end
+        EOF
+
+        @etl = Transformerb::Etl.new(@data, setup)
+      end
+
+      it 'sets up the correct output (load)' do
+        @etl.loader.should be_a(Transformerb::Adapters::Csv::Loader)
       end
 
     end
