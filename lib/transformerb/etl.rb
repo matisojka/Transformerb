@@ -1,7 +1,7 @@
 module Transformerb
   class Etl
 
-    attr_accessor :data, :import_attributes, :field_definitions
+    attr_accessor :data, :import_attributes, :field_definitions, :extractor
 
     def initialize(data, setup = nil)
       @data = data
@@ -12,9 +12,9 @@ module Transformerb
     end
 
     def source(adapter, &block)
-      adapter_class = "Transformerb::Adapters::#{adapter.camelize.constantize}"
-      adapter = adapter_class.new
-      adapter.instance_eval(&block)
+      adapter_class = "transformerb/adapters/#{adapter.to_s}".camelize.constantize
+      @extractor = adapter_class.new
+      @extractor.instance_eval(&block)
     end
 
     def fields(&block)

@@ -14,12 +14,12 @@ describe Transformerb::Etl do
         'region'            => nil
       }
 
-      setup =<<EOF
-fields do
-  take 'name'
-  take 'Last name'
-end
-EOF
+      setup =<<-EOF
+        fields do
+          take 'name'
+          take 'Last name'
+        end
+        EOF
 
       @etl = Transformerb::Etl.new(@data, setup)
     end
@@ -28,5 +28,25 @@ EOF
       @etl.import_attributes[:name].should == 'Lionel'
       @etl.import_attributes[:last_name].should == 'Messi'
     end
+
+    it 'uses the source correctly' do
+      setup =<<-EOF
+        source CSV do
+          file 'spec/lib/transformerb/adapters/spec.csv'
+          parser_config do |config|
+            config.headers = :first_row
+          end
+        end
+
+        fields do
+          take 'name'
+          take 'Last name'
+        end
+      EOF
+
+      @etl = Transformerb::Etl.new(@data, setup)
+      @etl.extractor.should be_a(Transformerb::Adapters::Csv)
+    end
+
   end
 end
