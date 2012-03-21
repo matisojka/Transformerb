@@ -12,6 +12,10 @@ module Transformerb
         @extractor.next
       end
 
+      def write(content)
+        @loader.write(content)
+      end
+
       class Config
 
         def initialize(set)
@@ -60,19 +64,26 @@ module Transformerb
       end
 
       class Loader
-        attr_accessor :config, :destination_file
+        attr_accessor :config, :destination_file_path
 
         def initialize
           @config = {}
         end
 
         def file(file_path)
-          @destination_file = File.open(file_path, 'w')
+          @destination_file_path = file_path
         end
 
         def parser_config(&block)
           yield Config.new(self)
         end
+
+        def write(content)
+          CSV.open(@destination_file_path, 'a') do |csv|
+            csv << content
+          end
+        end
+
       end
 
     end

@@ -42,4 +42,21 @@ describe Transformerb::Adapters::Csv do
     end
   end
 
+  describe '#write' do
+    before do
+      @adapter.loader.file 'spec/lib/transformerb/adapters/output_spec.csv'
+    end
+
+    it 'writes the content to a file' do
+      @adapter.write(['first', 'last', 'age'])
+      @written_content = File.open(@adapter.loader.destination_file_path, 'r').read
+      @written_content.should == "first,last,age\n"
+    end
+
+    after do
+      system("rm #{@adapter.loader.destination_file_path}")
+    end
+
+  end
+
 end
