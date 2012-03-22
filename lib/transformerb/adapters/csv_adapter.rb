@@ -79,8 +79,9 @@ module Transformerb
         end
 
         def write(content)
+          row = CSV::Row.new(content.keys, content.values, :header_row => true)
           CSV.open(@destination_file_path, 'a') do |csv|
-            csv << content
+            csv << row
           end
         end
 
