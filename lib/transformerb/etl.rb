@@ -4,17 +4,17 @@ module Transformerb
     attr_accessor :data, :import_attributes, :field_definitions
     attr_accessor :extractor, :loader, :transformer, :fields
 
-    def initialize(data, setup = nil)
-      @data = data
+    def initialize
       @import_attributes = {}
       @field_definitions = {}
-
-      eval setup unless setup.nil?
     end
 
-    def run
-      while row = @extractor.next do
-        @data = row
+    def run(file)
+      etl_setup = file.is_a?(String) ? file : File.open(file).read
+
+      instance_eval etl_setup
+
+      while(@data = @extractor.next) do
         @transformer.instance_eval(&@fields)
         @loader.write(@import_attributes)
       end
@@ -27,7 +27,7 @@ module Transformerb
     end
 
     def fields(&block)
-      @transformer = FieldTransformer.new(self)
+      @transformer ||= FieldTransformer.new(self)
       @fields = block
     end
 

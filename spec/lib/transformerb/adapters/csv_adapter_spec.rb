@@ -48,7 +48,7 @@ describe Transformerb::Adapters::Csv do
     end
 
     it 'writes the content to a file' do
-      @adapter.write(['first', 'last', 'age'])
+      @adapter.write(0 => 'first', 1 => 'last', 2 => 'age')
       @written_content = File.open(@adapter.loader.destination_file_path, 'r').read
       @written_content.should == "first,last,age\n"
     end

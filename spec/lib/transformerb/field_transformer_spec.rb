@@ -13,7 +13,16 @@ describe Transformerb::FieldTransformer do
       'region'            => nil
     }
 
-    @etl = Transformerb::Etl.new(@data)
+    class DummyExtractor; end
+    class DummyLoader; end
+
+    @etl = Transformerb::Etl.new
+
+    @etl.extractor = DummyExtractor.new
+    @etl.extractor.stub!(:next).and_return(@data, nil)
+
+    @etl.loader = DummyLoader.new
+    @etl.loader.stub!(:write).and_return nil
   end
 
   describe '#define(:field_name => :type, max_length)' do
@@ -22,6 +31,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         define :city => :string, :length => 10
       end
+      @etl.run("")
 
       @etl.field_definitions[:city].should == {:type => :string, :length => 10 }
     end
@@ -32,6 +42,7 @@ describe Transformerb::FieldTransformer do
 
         take 'locality' => :city
       end
+      @etl.run("")
 
       @etl.import_attributes[:city].should == 'Longer tha'
     end
@@ -44,6 +55,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         take 'gender', :as => :gender
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'Man'
     end
@@ -52,6 +64,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         take 'Last name'
       end
+      @etl.run("")
 
       @etl.import_attributes[:last_name].should == 'Messi'
     end
@@ -60,6 +73,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         take 'job' => :work
       end
+      @etl.run("")
 
       @etl.import_attributes[:work].should == 'football player'
     end
@@ -70,6 +84,7 @@ describe Transformerb::FieldTransformer do
           "#{name} Andres"
         end
       end
+      @etl.run("")
 
       @etl.import_attributes[:first_name].should == 'Lionel Andres'
     end
@@ -78,6 +93,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         take ['name', 'Last name'], :as => :full_name
       end
+      @etl.run("")
 
       @etl.import_attributes[:full_name].should == 'LionelMessi'
     end
@@ -86,6 +102,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         take ['name', 'Last name'], :as => :full_name, :join_with => ' / '
       end
+      @etl.run("")
 
       @etl.import_attributes[:full_name].should == 'Lionel / Messi'
     end
@@ -107,83 +124,86 @@ describe Transformerb::FieldTransformer do
   end
 
   describe '#take_and_map(:field_name(s), :mapping, :as => :variable, :join_with => :join_element, :default => :default)' do
-    before do
-      @etl.stub!(:data).and_return({})
-    end
-
     it 'returns "M" when "Herr" is given (regexp)' do
-      @etl = Transformerb::Etl.new('anrede' => 'Herr')
+      @etl.stub!(:data).and_return({'anrede' => 'Herr'})
 
       @etl.fields do
         @mapping = { 'M' => /Herr.*/, 'F' => 'Frau', 'T' => ['Trans', 'Tr'] }
         take_and_map 'anrede', @mapping, :as => :gender
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'M'
     end
 
     it 'returns "M" when "Herrn" is given (regexp)' do
-      @etl = Transformerb::Etl.new('anrede' => 'Herrn')
+      @etl.stub!(:data).and_return({'anrede' => 'Herrn'})
 
       @etl.fields do
         @mapping = { 'M' => /Herr.*/, 'F' => 'Frau', 'T' => ['Trans', 'Tr'] }
         take_and_map 'anrede', @mapping, :as => :gender
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'M'
     end
 
     it 'returns "F" when "Frau" is given (string)' do
-      @etl = Transformerb::Etl.new('anrede' => 'Frau')
+      @etl.stub!(:data).and_return({'anrede' => 'Frau'})
 
       @etl.fields do
         @mapping = { 'M' => /Herr.*/, 'F' => 'Frau', 'T' => ['Trans', 'Tr'] }
         take_and_map 'anrede', @mapping, :as => :gender
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'F'
     end
 
     it 'returns "T" when value is Trans and array is given' do
-      @etl = Transformerb::Etl.new('anrede' => 'Trans')
+      @etl.stub!(:data).and_return({'anrede' => 'Trans'})
 
       @etl.fields do
         @mapping = { 'M' => /Herr.*/, 'F' => 'Frau', 'T' => ['Trans', 'Tr'] }
         take_and_map 'anrede', @mapping, :as => :gender
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'T'
     end
 
     it 'returns "T" when value is Tr and array is given' do
-      @etl = Transformerb::Etl.new('anrede' => 'Tr')
+      @etl.stub!(:data).and_return({'anrede' => 'Tr'})
 
       @etl.fields do
         @mapping = { 'M' => /Herr.*/, 'F' => 'Frau', 'T' => ['Trans', 'Tr'] }
         take_and_map 'anrede', @mapping, :as => :gender
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'T'
     end
 
     it 'returns "N" when there is no match and default is given' do
-      @etl = Transformerb::Etl.new('anrede' => 'Unknown')
+      @etl.stub!(:data).and_return({'anrede' => 'Unknown'})
 
       @etl.fields do
         @mapping = { 'M' => /Herr.*/, 'F' => 'Frau', 'T' => ['Trans', 'Tr'] }
         take_and_map 'anrede', @mapping, :as => :gender, :default => 'N'
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'N'
     end
 
     it 'returns the default value if mapping is empty' do
-      @etl = Transformerb::Etl.new('anrede' => 'Unknown')
+      @etl.stub!(:data).and_return({'anrede' => 'Unknown'})
 
       @etl.fields do
         @mapping = { 'M' => /Herr.*/, 'F' => 'Frau', 'T' => ['Trans', 'Tr'] }
         take_and_map 'anrede', {}, :as => :gender, :default => 'N'
       end
+      @etl.run("")
 
       @etl.import_attributes[:gender].should == 'N'
     end
@@ -197,6 +217,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         cast :first_name, :to => :string
       end
+      @etl.run("")
 
       @etl.import_attributes[:first_name].should be_a(String)
     end
@@ -207,6 +228,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         cast :fifas_best, :to => :integer
       end
+      @etl.run("")
 
       @etl.import_attributes[:fifas_best].should be_a(Fixnum)
     end
@@ -217,6 +239,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         cast :birthday, :to => :datetime
       end
+      @etl.run("")
 
       @etl.import_attributes[:birthday].should be_a(DateTime)
     end
@@ -227,6 +250,7 @@ describe Transformerb::FieldTransformer do
       @etl.fields do
         cast :top_score
       end
+      @etl.run("")
 
       @etl.import_attributes[:top_score].should be_a(String)
     end
@@ -243,6 +267,7 @@ describe Transformerb::FieldTransformer do
           speed += 1
         end
       end
+      @etl.run("")
 
       @etl.import_attributes[:top_speed].should == 21
     end
