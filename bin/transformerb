@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby-local-exec
+
+# TODO => Ruby 1.8.7
+# require File.join(File.dirname(__FILE__), '../lib/transformerb')
+require_relative '../lib/transformerb'
+
+etl = Transformerb::Etl.new
+
+etl_path = File.join(File.dirname(__FILE__), '../etl')
+
+Dir.glob("#{etl_path}/*.rb").each do |file_name|
+  puts
+  puts "===== Importing #{File.basename(file_name)} ====="
+  file = File.open(file_name).read
+  etl.run(file)
+end
