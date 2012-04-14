@@ -1,40 +1,33 @@
 module Transformerb
   class Etl
 
-    attr_accessor :data, :import_attributes, :field_definitions
-    attr_accessor :extractor, :loader, :transformer, :fields
+    def self.transform(&block)
+      transformation = Etl.new
 
-    def initialize
-      @import_attributes = {}
-      @field_definitions = {}
+      transformation.instance_eval(&block)
+      transformation.loader :memory
     end
 
-    def run(file)
-      etl_setup = file.is_a?(String) ? file : File.open(file).read
-
-      instance_eval etl_setup
-
-      while(@data = @extractor.next) do
-        @transformer.instance_eval(&@fields)
-        @loader.write(@import_attributes)
-      end
-    end
-
-    def source(adapter, &block)
+    def extract(adapter, source, &block)
       adapter_class = "transformerb/adapters/#{adapter.to_s}".camelize.constantize
-      @extractor = adapter_class.new.extractor
-      @extractor.instance_eval(&block)
+      adapter = adapter_class.new(source)
+      adapter.instance_eval(&block)
+
+      @raw_data = adapter.extract
     end
 
-    def fields(&block)
-      @transformer ||= FieldTransformer.new(self)
-      @fields = block
+    def transform(&block)
+      @transformer = Transformer.new
+      @transformer.instance_eval(&block)
+
+      @mapping = @transformer.mapping
     end
 
-    def load(adapter, &block)
+    def loader(adapter, &block)
       adapter_class = "transformerb/adapters/#{adapter.to_s}".camelize.constantize
-      @loader = adapter_class.new.loader
-      @loader.instance_eval(&block)
+      adapter = adapter_class.new(@raw_data, @mapping)
+
+      adapter.load
     end
 
   end
