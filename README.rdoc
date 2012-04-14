@@ -1,16 +1,11 @@
-= transformerb
+= Transformerb
 
-Description goes here.
+Transformerb is a flexible ETL tool which pretends to make some typical and repetitive tasks easier and more error prone.
+It focuses on an easy to understand but flexible enough DSL.
 
-== Contributing to transformerb
- 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
-* Fork the project.
-* Start a feature/bugfix branch.
-* Commit and push until you are happy with your contribution.
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+Everything is still in a very early phase, but there are lots of ideas I have been collecting during my daily routine and will be posting as soon as possible.
+
+For now things are changing too fast to write a more specific documentation, but still if you want to contribute, start looking at the specs and the code, open an issue and feel free to comment on any related topic!
 
 == Copyright
 
