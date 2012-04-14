@@ -78,4 +78,24 @@ describe Transformerb::Etl do
       FileUtils.rm('spec/fixtures/output_test_csv.csv')
     end
   end
+
+  describe 'external mapping file' do
+    before do
+      @transformation = Transformerb::Etl.transform('spec/fixtures/external_mapping.rb')
+    end
+
+    it 'returns an array of entities' do
+      @transformation.should be_a(Array)
+      @transformation.first.should be_a(Transformerb::Entity)
+      @transformation.size.should == 3
+    end
+
+    it 'returns a correct Entity' do
+      entity = @transformation.first
+      entity.id.should == '1'
+      entity.first_name.should == 'Lionel'
+      entity.last_name.should == 'Messi'
+    end
+  end
+
 end

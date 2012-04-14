@@ -1,10 +1,16 @@
 module Transformerb
   class Etl
 
-    def self.transform(&block)
+    def self.transform(file_path = nil, &block)
       transformation = Etl.new
 
-      transformation.instance_eval(&block)
+      if file_path.nil?
+        transformation.instance_eval(&block)
+      else
+        file = File.open(file_path, 'rb').read
+        transformation.instance_eval(file)
+      end
+
       transformation.loader :memory
     end
 
