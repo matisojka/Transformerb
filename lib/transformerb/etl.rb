@@ -11,7 +11,10 @@ module Transformerb
     def extract(adapter, source, &block)
       adapter_class = "transformerb/adapters/#{adapter.to_s}".camelize.constantize
       adapter = adapter_class.new(source)
-      adapter.instance_eval(&block)
+
+      if block_given?
+        adapter.instance_eval(&block)
+      end
 
       @raw_data = adapter.extract
     end
@@ -23,11 +26,9 @@ module Transformerb
       @mapping = @transformer.mapping
     end
 
-    def loader(adapter, &block)
+    def loader(adapter, destination = nil, &block)
       adapter_class = "transformerb/adapters/#{adapter.to_s}".camelize.constantize
-      adapter = adapter_class.new(@raw_data, @mapping)
-
-      adapter.load
+      adapter_class.load(destination, @raw_data, @mapping)
     end
 
   end
