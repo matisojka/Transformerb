@@ -8,5 +8,9 @@ require 'active_support/inflector'
 require 'date'
 require 'pry'
 
-# TODO: Use FasterCSV under Ruby 1.8.7
-require 'csv'
+if RUBY_VERSION == '1.8.7'
+  require 'fastercsv'
+  CSV = FasterCSV
+else
+  require 'csv'
+end
