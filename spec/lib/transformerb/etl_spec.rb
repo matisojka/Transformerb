@@ -98,4 +98,25 @@ describe Transformerb::Etl do
     end
   end
 
+  describe 'field validation' do
+    before do
+      @transformation = Transformerb::Etl.transform do
+        extract :csv, 'spec/fixtures/test_csv_missing_id.csv'
+
+        transform do
+          define :id do
+            validates :presence => true
+          end
+
+        end
+      end
+
+    end
+
+    it 'marks entities with missing id as not valid' do
+      @transformation.select { |entity| entity.valid? }.size.should == 1
+    end
+
+  end
+
 end
