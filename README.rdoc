@@ -1,6 +1,6 @@
 = Transformerb
 
-Transformerb is a flexible {ETL}[http://en.wikipedia.org/wiki/Extract,_transform,_load] tool which pretends to make some typical and repetitive tasks easier and more error prone.
+Transformerb is a flexible {ETL}[http://en.wikipedia.org/wiki/Extract,_transform,_load] tool which pretends to make some typical and repetitive tasks easier and less error prone.
 It focuses on an easy to understand but flexible enough DSL.
 
 Everything is still in a very early phase, but there are lots of ideas I have been collecting during my daily routine and will be posting as soon as possible.
