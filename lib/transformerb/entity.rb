@@ -1,5 +1,6 @@
 module Transformerb
   class Entity
+    include ActiveModel::Validations
 
     def initialize(raw_data, mapping)
       @raw_data = raw_data
@@ -17,7 +18,7 @@ module Transformerb
           value = @raw_data[data_key]
         else # :first_name => ['First', Proc]
           raw_value = @raw_data[data_key.first]
-          value = field_eval(raw_value, &data_key.last)
+          value = field_eval(attribute_name, raw_value, &data_key.last)
         end
 
         send("#{attribute_name}=", value)
@@ -25,20 +26,32 @@ module Transformerb
       end
     end
 
-    def field_eval(raw_value, &block)
-      field = Field.new(raw_value)
-      field.instance_eval(&block)
+    def field_eval(name, raw_value, &block)
+      Field.new(self, name, raw_value, &block).value
     end
 
     class Field
+      include ActiveModel::Validations
 
-      def initialize(attribute)
-        @attribute = attribute
+      attr_accessor :value
+
+      def initialize(entity, name, raw_value, &block)
+        @entity       = entity
+        @name         = name
+        @value        = raw_value
+
+        self.instance_eval(&block)
       end
 
       def convert
-        yield @attribute
+        @value = yield @value
       end
+
+      def validates(*args)
+        name = @name
+        Entity.class_eval { validates(name, *args) }
+      end
+
     end
   end
 end

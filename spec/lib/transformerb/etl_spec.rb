@@ -104,8 +104,8 @@ describe Transformerb::Etl do
         extract :csv, 'spec/fixtures/test_csv_missing_id.csv'
 
         transform do
-          define :id do
-            #validates :presence => true
+          define :id, :from => 'id' do
+            validates :presence => true
           end
 
         end
@@ -114,7 +114,6 @@ describe Transformerb::Etl do
     end
 
     it 'marks entities with missing id as not valid' do
-      pending 'Pending: Implement validations'
       @transformation.select { |entity| entity.valid? }.size.should == 1
     end
 

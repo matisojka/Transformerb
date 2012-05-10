@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'active_support/all'
+require 'active_model'
 
 require 'pry'
 require 'httparty'
